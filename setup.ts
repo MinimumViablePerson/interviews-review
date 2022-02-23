@@ -84,7 +84,7 @@ CREATE TABLE IF NOT EXISTS interviewers (
   name TEXT NOT NULL,
   email TEXT NOT NULL,
   PRIMARY KEY (id)
-);;
+);
 
 CREATE TABLE IF NOT EXISTS interviews (
   id INTEGER,

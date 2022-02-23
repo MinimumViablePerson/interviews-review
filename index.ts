@@ -22,6 +22,10 @@ const updateApplicant = db.prepare(`
 UPDATE applicants SET name=?, email=? WHERE id=?;
 `)
 
+const deleteApplicant = db.prepare(`
+DELETE FROM applicants WHERE id=?;
+`)
+
 const getInterviewsFromApplicant = db.prepare(`
 SELECT interviews.*, interviewers.name as 'interviewerName', interviewers.email as 'interviewerEmail' FROM interviews
 JOIN interviewers ON interviews.interviewerId = interviewers.id
@@ -34,6 +38,14 @@ SELECT * FROM interviewers;
 
 const getAllInterviews = db.prepare(`
 SELECT * FROM interviews;
+`)
+
+const deleteInterview = db.prepare(`
+DELETE FROM interviews WHERE id=?;
+`)
+
+const deleteAllInterviewsForApplicant = db.prepare(`
+DELETE FROM interviews WHERE applicantId = ?;
 `)
 
 app.get('/applicants', (req, res) => {
@@ -58,6 +70,32 @@ app.get('/applicants/:id', (req, res) => {
     res.send(applicant)
   } else {
     res.status(404).send({ error: 'Applicant not found.' })
+  }
+})
+
+app.delete('/applicants/:id', (req, res) => {
+  const id = req.params.id
+
+  deleteAllInterviewsForApplicant.run(id)
+
+  const info = deleteApplicant.run(id)
+
+  if (info.changes > 0) {
+    res.send({ message: 'Yay!' })
+  } else {
+    res.status(404).send({ error: 'Nope' })
+  }
+})
+
+app.delete('/interviews/:id', (req, res) => {
+  const id = req.params.id
+  // delete the interview if it exists
+  const info = deleteInterview.run(id)
+
+  if (info.changes > 0) {
+    res.send({ message: 'Yay!' })
+  } else {
+    res.status(404).send({ error: 'Nope' })
   }
 })
 
